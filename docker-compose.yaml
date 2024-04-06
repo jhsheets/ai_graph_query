@@ -1,0 +1,62 @@
+version: "3.9"
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports: 
+      - 11434:11434
+      
+  ollama-webui:
+    image: ghcr.io/ollama-webui/ollama-webui:main
+    volumes:
+      - ./data/ollama-webui:/app/backend/data
+    depends_on:
+      - ollama
+    ports:
+      - 3002:8080
+    environment:
+      - 'OLLAMA_API_BASE_URL=http://ollama:11434/api'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+      
+  neo4j:
+    image: neo4j:latest
+    ports: 
+      - 7474:7474
+      - 7687:7687
+    environment:
+      - NEO4J_AUTH=neo4j/pleaseletmein
+      - NEO4J_PLUGINS=["apoc"]
+
+  langchain:
+    #build: .
+    image: langchain:latest
+    ports: 
+      - 8080:8080
+    depends_on:
+      - neo4j
+      - ollama
+
+# localai_api:
+#   #image: localai/localai:v2.11.0-aio-cpu
+#   image: localai/localai:v2.11.0-aio-gpu-cuda-12
+#   healthcheck:
+#     test: ["CMD", "curl", "-f", "http://localhost:8080/readyz"]
+#     interval: 1m
+#     timeout: 20m
+#     retries: 5
+#   ports:
+#     - 8080:8080
+#   environment:
+#     - DEBUG=true
+#     #MODELS=github://owner/repo/file.yaml@branch,github://owner/repo/file.yaml@branc
+#   volumes:
+#     - ./models:/build/models:cached
+#   #decomment the following piece if running with Nvidia GPUs
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: 1
+#              capabilities: [gpu]
+#              
