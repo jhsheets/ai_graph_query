@@ -13,7 +13,8 @@ This is just a learning example using a local AI to generate Cypher queries agai
 
 # TODO
 1. Use Streamlit in my Dockerfile to serve up a webserver I can query instead of having hard-coded questions
-2. Use a different way to download the LLM file instead of requiring using ollama-ui
-3. Fix docker compose so the langchain app will properly wait on graphdb and llama to be available, or at least doesn't crash if theyr'e not up (yet)
-4. Use a more complex database example
-5. Try switching from Neo4J to Postgres with Apache AGE
+2. Try using this LLM model instead: https://huggingface.co/monsterapi/llama2-code-generation
+3. Use a different way to download the LLM file instead of requiring using ollama-ui
+4. Fix docker compose so the langchain app will properly wait on graphdb and llama to be available, or at least doesn't crash if theyr'e not up (yet)
+5. Use a more complex database example
+6. Try switching from Neo4J to Postgres with Apache AGE
