@@ -1,6 +1,7 @@
-# ai_graph_query
-Test setup to use AI to generate Cypher queries against a graph database
+# Overview
+This is just a learning example using a local AI to generate Cypher queries against a graph database.
 
+# Running
 1. Run `build.bat`
 2. Run `docker-compose up -d`
 3. Open ollama web ui: http://localhost:3002
@@ -8,3 +9,11 @@ Test setup to use AI to generate Cypher queries against a graph database
 5. Click on `settings > models > pull a model from ollama.com`
 6. Enter `llama2` and press download
 7. Restart the localai_api service in docker
+
+
+# TODO
+1. Use Streamlit in my Dockerfile to serve up a webserver I can query instead of having hard-coded questions
+2. Use a different way to download the LLM file instead of requiring using ollama-ui
+3. Fix docker compose so the langchain app will properly wait on graphdb and llama to be available, or at least doesn't crash if theyr'e not up (yet)
+4. Use a more complex database example
+5. Try switching from Neo4J to Postgres with Apache AGE
