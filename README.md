@@ -8,9 +8,10 @@ This is just a learning example using a local AI to generate Cypher queries agai
 4. Click create an account and set values
 5. Click on `settings > models > pull a model from ollama.com`
 6. Enter `llama2` and press download
-7. Go to Docker's console output for `langchain-1` and verify it ran
+7. Open web page: http://localhost:8080
+8. Enter a question. There's an expandable section to show example queries
 
-You can also access the Neo4J web UI at: http://localhost:7474
+You can also access the Neo4J web UI at: http://localhost:7474 if you want to run queries directly
 
 # Behavior
 I don't always get correct results.
@@ -20,9 +21,7 @@ I've tried adding some extra examples to the prompt template, but it's causing i
 This probably requires better training, or fine tuning to get better results, or maybe some reinforced learning.
 
 # TODO
-1. Use Streamlit in my Dockerfile to serve up a webserver I can query instead of having hard-coded questions
-2. Try using this LLM model instead: https://huggingface.co/monsterapi/llama2-code-generation
-3. Use a different way to download the LLM file instead of requiring using ollama-ui
-4. Fix docker compose so the langchain app will properly wait on graphdb and llama to be available, or at least doesn't crash if theyr'e not up (yet)
-5. Use a more complex database example
-6. Try switching from Neo4J to Postgres with Apache AGE
+1. Try using this LLM model instead: https://huggingface.co/monsterapi/llama2-code-generation
+2. Use a different way to download the LLM file instead of requiring using ollama-ui
+3. Use a more complex database example
+4. Try switching from Neo4J to Postgres with Apache AGE
