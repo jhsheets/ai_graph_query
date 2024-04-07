@@ -27,6 +27,18 @@ graph.refresh_schema()
 print(graph.schema)
 
 
+# Note that there are two input variables here: {schema} and {question}
+# The {question} value will be supplied when we execute chain.run(...), but what about {schema}? How is it set?
+# Looking at the source code for GraphCypherQAChain (https://github.com/langchain-ai/langchain/blob/master/libs/langchain/langchain/chains/graph_qa/cypher.py#L215)
+# it looks like it will use the langchain_conmmunity.graphs.Neo4jGraph's get_structured_schema field to get the schema.
+# When chain.run(...) is executed, it will set the {schema} variable to its value.
+# 
+# There's no way to alter how GraphCypherQAChain gets the schema. If we didn't want to use it's way of fetching the schema,
+# we could probably change the prompt template below to not include a {schema} variable. We could query the database however we liked
+# to get the schema and just populate the template before passing it in (or see if we can pass our own parameters in somehow)
+# 
+# That said, it looks like GraphCypherQAChain always tries to query the database for the schema. If we tried using this library 
+# on another graph db (like Posgtres AGE) it would probably blow up.
 CYPHER_GENERATION_TEMPLATE = """Task:Generate Cypher statement to query a graph database.
 Instructions:
 Use only the provided relationship types and properties in the schema.
