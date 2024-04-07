@@ -28,13 +28,14 @@ services:
       - NEO4J_PLUGINS=["apoc"]
 
   langchain:
-    #build: .
-    image: langchain:latest
+    build: .
+    #image: langchain:latest
     ports: 
       - 8080:8080
     depends_on:
       - neo4j
       - ollama
+    restart: on-failure
 
 # localai_api:
 #   #image: localai/localai:v2.11.0-aio-cpu

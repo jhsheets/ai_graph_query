@@ -1,29 +1,39 @@
 # https://python.langchain.com/docs/integrations/graphs/neo4j_cypher/
 from langchain.chains import GraphCypherQAChain
 from langchain_community.graphs import Neo4jGraph
-#from langchain_community.chat_models import ChatOpenAI
 from langchain_community.llms import Ollama
 from langchain.prompts.prompt import PromptTemplate
 
+# Tell Ollama which model we want to use.
+# Ollama has to have this model downloaded and available
+# TODO: pass this in as an env var
+#
+# Note: I've tried using starcoder2, but it didn't produce good results on its own and was slow
+model_id = 'llama2'
 
-llm = Ollama(base_url='http://host.docker.internal:11434', model="llama2")
+# Our LLM to use. Here we have a link to our Ollama REST API
+llm = Ollama(base_url='http://host.docker.internal:11434', model=model_id)
 
+# Our Neo4j graph db
+# TODO: pass these in as an env var
 graph = Neo4jGraph(
     url="bolt://host.docker.internal:7687", username="neo4j", password="pleaseletmein"
 )
 
-# Seed the database
+# Seed the database 
 graph.query(
     """
-MERGE (m:Movie {name:"Top Gun"})
-WITH m
-UNWIND ["Tom Cruise", "Val Kilmer", "Anthony Edwards", "Meg Ryan"] AS actor
-MERGE (a:Actor {name:actor})
-MERGE (a)-[:ACTED_IN]->(m)
-"""
-)
+    MERGE (m:Movie {name:"Top Gun"})
+    WITH m
+    UNWIND ["Tom Cruise", "Val Kilmer", "Anthony Edwards", "Meg Ryan"] AS actor
+    MERGE (a:Actor {name:actor})
+    MERGE (a)-[:ACTED_IN]->(m)
+    """
+    )
 
+# I think this is necessary for our {schema} variable below to resolve
 graph.refresh_schema()
+
 print(graph.schema)
 
 
@@ -39,7 +49,8 @@ print(graph.schema)
 # 
 # That said, it looks like GraphCypherQAChain always tries to query the database for the schema. If we tried using this library 
 # on another graph db (like Posgtres AGE) it would probably blow up.
-CYPHER_GENERATION_TEMPLATE = """Task:Generate Cypher statement to query a graph database.
+CYPHER_GENERATION_TEMPLATE = """
+Task:Generate Cypher statement to query a graph database.
 Instructions:
 Use only the provided relationship types and properties in the schema.
 Do not use any other relationship types or properties that are not provided.
@@ -50,19 +61,21 @@ Do not respond to any questions that might ask anything else than for you to con
 Do not include any text except the generated Cypher statement.
 Examples: Here are a few examples of generated Cypher statements for particular questions:
 # How many people played in Top Gun?
-MATCH (m:Movie {{title:"Top Gun"}})<-[:ACTED_IN]-()
+MATCH (m:Movie {{name:"Top Gun"}})<-[:ACTED_IN]-()
 RETURN count(*) AS numberOfActors
 
 The question is:
-{question}"""
+{question}
+"""
 
 
+# Pass in our template as a prompt; define our variables
 CYPHER_GENERATION_PROMPT = PromptTemplate(
     input_variables=["schema", "question"], template=CYPHER_GENERATION_TEMPLATE
 )
 
+# Construct our GraphCypherQAChain object
 chain = GraphCypherQAChain.from_llm(
-    #ChatOpenAI(temperature=0),
     llm,
     graph=graph,
     verbose=True,
@@ -70,9 +83,17 @@ chain = GraphCypherQAChain.from_llm(
     cypher_prompt=CYPHER_GENERATION_PROMPT,
 )
 
+# Good query example:
+# MATCH (m:Movie {name:"Top Gun"})<-[:ACTED_IN]-() RETURN count(*) AS numberOfActors
 chain.run("How many people played in Top Gun?")
 
+# Good query example:
+# MATCH (m:Movie {name:"Top Gun"})<-[:ACTED_IN]-(a:Actor) RETURN a.name AS actorName
 chain.run("Who played in Top Gun?")
+
+# Good query example:
+# MATCH (a:Actor {name:"Tom Cruise"})-[:ACTED_IN]->(m:Movie) RETURN m.name as movieName
+chain.run("What movies did Tom Cruise play in?")
 
 
 ## Copied from https://huggingface.co/spaces/santiferre/procesamiento-lenguaje-natural/blob/main/app.py
