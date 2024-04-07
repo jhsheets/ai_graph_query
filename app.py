@@ -79,7 +79,7 @@ chain = GraphCypherQAChain.from_llm(
     llm,
     graph=graph,
     verbose=True,
-    validate_cypher=False,
+    validate_cypher=True,
     cypher_prompt=CYPHER_GENERATION_PROMPT,
 )
 
