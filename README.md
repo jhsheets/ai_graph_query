@@ -22,6 +22,7 @@ This probably requires better training, or fine tuning to get better results, or
 
 # TODO
 1. Try using this LLM model instead: https://huggingface.co/monsterapi/llama2-code-generation
-2. Use a different way to download the LLM file instead of requiring using ollama-ui
-3. Use a more complex database example
-4. Try switching from Neo4J to Postgres with Apache AGE
+  1. I think we can replace the langchain LLMChain with a huggingface pipeline: https://stackoverflow.com/questions/77152888/huggingfacepipeline-and-langchain
+3. Use a different way to download the LLM file instead of requiring using ollama-ui
+4. Use a more complex database example
+5. Try switching from Neo4J to Postgres with Apache AGE
